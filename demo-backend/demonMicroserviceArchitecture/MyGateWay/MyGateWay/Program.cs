@@ -57,7 +57,16 @@ namespace GateWay
                        }
                    };
                });
-
+                builder.Services.AddCors(options =>
+                {
+                    options.AddDefaultPolicy(builder =>
+                    {
+                        builder.SetIsOriginAllowed(origin => true)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                    });
+                });
                 builder.Services.AddControllers();
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
                 builder.Services.AddEndpointsApiExplorer();
@@ -73,8 +82,8 @@ namespace GateWay
                     app.UseSwaggerUI();
                 }
                 app.UseHttpsRedirection();
+                app.UseCors();
                 await app.UseOcelot();
-
                 app.UseAuthorization();
                 app.UseAuthentication();
                 app.MapControllers();
