@@ -2,19 +2,19 @@ import { createSlice } from '@reduxjs/toolkit'
 
 
 const initialState = {
-  data: [],
+  data: null,
   loading: false,
   error: null
 }
 
 
 
-export const userSlice = createSlice({
-  name: 'users',
+export const authSlice = createSlice({
+  name: 'auth',
   initialState: initialState,
   reducers: {
-    setUsers: (state, action) => {
-      state.data = action.payload;
+    setAuth: (state, action) => {
+      state.data = action.payload.data;
       state.loading = false;
       state.error = null;
     },
@@ -25,8 +25,9 @@ export const userSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    clearUsers: (state) => {
-      state.data = initialState.data;
+    clearAuth: (state) => {
+      state.data = null;
+      state.accessToken = "";
       state.loading = false;
       state.error = null;
     }
@@ -34,6 +35,6 @@ export const userSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setLoading, setUsers, setError, clearUsers  } = userSlice.actions
+export const { setLoading, setAuth, setError, clearAuth  } = authSlice.actions
 
-export default userSlice.reducer
+export default authSlice.reducer

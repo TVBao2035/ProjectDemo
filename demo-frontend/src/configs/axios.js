@@ -1,6 +1,9 @@
 import axios from "axios";
 import store from "../stores/store";
-import { setUser } from "../stores/userSlice";
+import { refreshToken } from "../apis/authAPI";
+import { setAuth } from "../stores/authSlice";
+import { CookiesHelper } from "../Helpers";
+
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_API
@@ -9,10 +12,13 @@ const instance = axios.create({
 instance.defaults.withCredentials = true;
 
 instance.interceptors.request.use(function (config) {
+
     const state = store.getState();
-    const accessToken = state.user?.accessToken;
     
-    if (accessToken) {
+    const accessToken = state.auth?.data?.accessToken;
+   
+    
+    if (accessToken && config.url !== "/user/refresh") {
         config.headers.Authorization = `Bearer ${accessToken}`;
     }
     
@@ -21,27 +27,29 @@ instance.interceptors.request.use(function (config) {
     return Promise.reject(error);
 });
 
-instance.interceptors.response.use((response) => {
-    console.log("Config response", response);
-    
-    // store.dispatch(setUser({
-    //     data: {
-    //         name: "hadalf"
-    //     },
-    //     accessToken: "kdals;f"
-    // }));
+instance.interceptors.response.use(async(response) => {
+
     return response.data;
 }, async function (error) {
+    if(error.status === 401){
+        console.log("Expried token");
+       let res = await refreshToken();
+       if(res?.statusCode === 401) {
+            CookiesHelper.removeRefreshToken(); // Remove refresh token from cookies
+            window.location.href = "/signin";
+            return;
+        }
+        store.dispatch(setAuth({
+            data: {
+                name: res.data.name,
+                accessToken: res.data.accessToken
+            }
+        }));
+        CookiesHelper.setRefreshToken(res.data.refreshToken); // Set refresh token in cookies
+    }
+
     return Promise.reject(error);
 });
 
-// Add a response interceptor
-instance.interceptors.response.use((response) => {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-    return response;
-}, async function (error) {
-   
 
-});
 export default instance;

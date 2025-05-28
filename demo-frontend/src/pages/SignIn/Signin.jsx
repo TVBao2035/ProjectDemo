@@ -1,14 +1,13 @@
-import { useDispatch, useSelector } from "react-redux";
-import { clearUser, setUser } from "../../stores/userSlice";
+import { useDispatch } from "react-redux";
 import { Input } from "../../components";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { signin } from "../../apis/authAPI";
 import { useNavigate } from "react-router-dom";
-
+import { setAuth } from "../../stores/authSlice";
+import { CookiesHelper } from "../../Helpers";
 const SignIn = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const user = useSelector(state => state.user);
     const [infor, setInfor] = useState({
         email: "acb@gmail.com",
         password: "12345"
@@ -29,18 +28,18 @@ const SignIn = () => {
           setError(res.message);
           return;
         }
-
-        dispatch(setUser({
+        CookiesHelper.setRefreshToken(res.data.refreshToken); // Set refresh token in cookies
+        dispatch(setAuth({
           data: {
             name: res.data.name,
             accessToken: res.data.accessToken
           }
         }));
         navigate("/");
+        return;
       } catch (error) {
           setError("Error during sign in:", error.message);
           console.error("Error during sign in:", error);
-          // Handle error appropriately, e.g., show a notification or alert
       }
     }
     return ( 
