@@ -10,7 +10,39 @@
                 }
             ],
             "UpstreamPathTemplate": "/Order",
-            "UpstreamHttpMethod": [ "GET", "POST" ],
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/Order/{Id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5124
+                }
+            ],
+            "UpstreamPathTemplate": "/Order/{Id}",
+            "UpstreamHttpMethod": [ "DELETE" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/Order/Search",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5124
+                }
+            ],
+            "UpstreamPathTemplate": "/Order/Search",
+            "UpstreamHttpMethod": [ "POST" ],
             "AuthenticationOptions": {
                 "AuthenticationProviderKey": "Bearer",
                 "AllowedScopes": []
@@ -33,7 +65,7 @@
             }
         },
         {
-            "DownstreamPathTemplate": "/api/User",
+            "DownstreamPathTemplate": "/api/User/{Id}",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
@@ -105,7 +137,7 @@
             }
         },
         {
-            "DownstreamPathTemplate": "/api/Product",
+            "DownstreamPathTemplate": "/api/Product/{Id}",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
@@ -115,6 +147,22 @@
             ],
             "UpstreamPathTemplate": "/Product/{Id}",
             "UpstreamHttpMethod": [ "GET", "DELETE" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/Product/Search",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5031
+                }
+            ],
+            "UpstreamPathTemplate": "/Product/Search",
+            "UpstreamHttpMethod": [ "POST" ],
             "AuthenticationOptions": {
                 "AuthenticationProviderKey": "Bearer",
                 "AllowedScopes": []

@@ -5,12 +5,15 @@ import { TiArrowUnsorted } from "react-icons/ti";
 import { FaRegEdit, FaUserPlus } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { HiArrowLeftCircle, HiArrowRightCircle } from "react-icons/hi2";
-import { getProducts } from "../../apis/productAPI";
-import { setProducts } from "../../stores/productSlice";
-
+import { searchProducts } from "../../apis/productAPI";
+import { openProductModal, setProducts } from "../../stores/productSlice";
+import { MdOutlineAddCircle } from "react-icons/md";
+import ModalProduct from "../../components/Modals/ModalProduct";
+import { ModalType } from "../../Consts";
+import { openOrderModal } from "../../stores/orderSlice";
 const ProductManagement = () => {
      const initialSearch = {
-        currPage: 1,
+        pageIndex: 1,
         pageSize: 9,
         filters:[],
         sort:{
@@ -36,9 +39,12 @@ const ProductManagement = () => {
 
     const handleGetProducts = async () => {
         try {
-            let res = await getProducts ();
+            let res = await searchProducts(search);
             if(res.statusCode === 200){
-                dispatch(setProducts(res.data));
+                dispatch(setProducts(res.data.searchData));
+                setPaging({
+                    totalPage: res.data.totalPages
+                });
                 return;
             }
         } catch (error) {
@@ -46,20 +52,49 @@ const ProductManagement = () => {
         }
     }
 
+    const handleSortByName = () => {
+        setSearch(prev => ({
+            ...prev,
+            sort: {
+                fieldName: "name",
+                isASC: !prev.sort.isASC
+            }
+        }));
+    }
+    const handleSortByPrice = () => {
+        setSearch(prev => ({
+            ...prev,
+            sort: {
+                fieldName: "price",
+                isASC: !prev.sort.isASC
+            }
+        }));
+    }
     
-    const handlePrevious = () => {}
+    const handlePrevious = () => {
+        if(search.pageIndex > 1){
+            setSearch(prev => ({ ...prev, pageIndex: prev.pageIndex - 1 }));
+        }
+    }
 
-    const handleNext = () => {}
+    const handleNext = () => {
+        if(search.pageIndex < paging.totalPage) {
+            setSearch(prev => ({ ...prev, pageIndex: prev.pageIndex + 1 }));
+        }
+    }
 
-
+    useEffect(() => {
+            setSearch(prev => ({ ...prev, pageIndex: 1, filters: [{ fieldName: "name", value: deboundSearch }] }));
+    }, [deboundSearch]);
 
     useEffect(() => {
          if(auth.data){
              handleGetProducts();
          }
-    }, [auth] );
+    }, [auth, search, products.modal.count] );
     return (
         <div className="ProductManagement flex flex-col justify-between px-40 relative">
+                    <ModalProduct/>
                     <div className="flex justify-between mt-3">
                         <div className="flex items-center w-1/2 ">
                             <input type="text" 
@@ -68,7 +103,7 @@ const ProductManagement = () => {
                                 onChange={(e) => setSearchValue(e.target.value)}
                                 placeholder="enter here " />
                         </div>
-                        <FaUserPlus className="text-5xl rounded-full px-3 py-3 hover:bg-blue-400  bg-blue-500 text-white"/>
+                        <MdOutlineAddCircle className="text-4xl  hover:text-blue-400  text-blue-500" onClick={()=> dispatch(openProductModal({product: null, type: ModalType.CREATE}))}/>
                     </div>
                     <table className="table-fixed border border-gray-200 shadow-2xl mt-10">
                         <thead className="bg-gradient-to-r from-blue-400 to-blue-700 w-3/4 mt-10 text-white select-none">
@@ -79,37 +114,40 @@ const ProductManagement = () => {
                                 <th className="px-6 py-3"  scope="col">
                                     <div className="flex gap-2 items-center">
                                         <p>Name</p>
-                                        {/* <TiArrowUnsorted onClick={handlSortByName} className=" active:text-blue-100 hover:ring-1 hover:ring-white rounded-full"/> */}
+                                        <TiArrowUnsorted onClick={handleSortByName} className=" active:text-blue-100 hover:ring-1 hover:ring-white rounded-full"/>
                                     </div> 
                                 </th>
                                 <th className="px-6 py-3"  scope="col">
                                     <div className="flex gap-2 items-center">
                                         <p>Price</p>
-                                        {/* <TiArrowUnsorted onClick={handleSortByEmail} className=" active:text-blue-100 hover:ring-1 hover:ring-white rounded-full"/> */}
+                                        <TiArrowUnsorted onClick={handleSortByPrice} className=" active:text-blue-100 hover:ring-1 hover:ring-white rounded-full"/>
                                     </div>
                                 </th>
                                 <th className="px-6 py-3"  scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            
                             {
                                 products?.data?.length !== 0 ? 
                                 products?.data?.map((product, index) => {
                                     return (
-                                    <tr className="hover:bg-gradient-to-r from-blue-400 to-blue-500 hover:text-white  border border-gray-200 hover:ring-1 hover:ring-blue-500" >
-                                        <td class="px-6 py-4">{product.id}</td>
-                                        <td class="px-6 py-4">{product.name}</td>
-                                        <td class="px-6 py-4">{product.price}</td>
+                                    <tr key={index} className="hover:bg-gradient-to-r from-blue-400 to-blue-500 hover:text-white  border border-gray-200 hover:ring-1 hover:ring-blue-500" >
+                                        <td className="px-6 py-4">{product.id}</td>
+                                        <td className="px-6 py-4">{product.name}</td>
+                                        <td className="px-6 py-4">{product.price}</td>
                                         <td className="flex gap-5 px-6 py-4 items-center">
-                                            <FaRegEdit className="text-xl text-yellow-600 hover:text-yellow-300" />
-                                            <MdDeleteOutline className="text-2xl text-red-700 hover:text-red-400"/>
+                                            <FaRegEdit className="text-xl text-yellow-600 hover:text-yellow-300" 
+                                                onClick={() => dispatch(openProductModal({product, type: ModalType.EDIT}))}
+                                            />
+                                            <MdDeleteOutline className="text-2xl text-red-700 hover:text-red-400" 
+                                                onClick={() => dispatch(openProductModal({product, type: ModalType.DELETE}))}
+                                            />
                                         </td>
                                     </tr>
                                     );
                                 }):
                                 (
-                                   <tr className="hover:bg-gradient-to-r from-blue-400 to-blue-500 hover:text-white  border border-gray-200 hover:ring-1 hover:ring-blue-500" >
+                                   <tr key={"894343"} className="hover:bg-gradient-to-r from-blue-400 to-blue-500 hover:text-white  border border-gray-200 hover:ring-1 hover:ring-blue-500" >
                                         <td className="px-6 py-4 text-center" colSpan={4}>No  found</td>
                                     </tr>
                                 )
@@ -122,12 +160,12 @@ const ProductManagement = () => {
                     <div className="fixed bottom-40 w-full start-0 ">
                         <div className="flex gap-3 items-center justify-center mt-5">
                             <HiArrowLeftCircle
-                                className={`text-3xl ${search.currPage === 1 ? "text-gray-500" : "text-blue-500 active:text-blue-400 hover:ring-2 hover:rounded-full hover:ring-blue-500 "} `}
+                                className={`text-3xl ${search.pageIndex === 1 ? "text-gray-500" : "text-blue-500 active:text-blue-400 hover:ring-2 hover:rounded-full hover:ring-blue-500 "} `}
                                 onClick={handlePrevious}
                             />
-                            <div className="text-xl select-none text-blue-500 font-bold" >{search.currPage}</div>
+                            <div className="text-xl select-none text-blue-500 font-bold" >{search.pageIndex}</div>
                             <HiArrowRightCircle
-                                className={`text-3xl   ${paging.totalPage === search.currPage ? "text-gray-500" : "text-blue-500 active:text-blue-400 hover:ring-2 hover:rounded-full hover:ring-blue-500"}`} 
+                                className={`text-3xl   ${paging.totalPage === search.pageIndex ? "text-gray-500" : "text-blue-500 active:text-blue-400 hover:ring-2 hover:rounded-full hover:ring-blue-500"}`} 
                                 onClick={handleNext}/>
         
                         </div>

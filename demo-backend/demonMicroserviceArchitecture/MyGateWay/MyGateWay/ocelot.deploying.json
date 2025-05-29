@@ -1,0 +1,172 @@
+{
+    "Routes": [
+        {
+            "DownstreamPathTemplate": "/api/Order",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 83
+                }
+            ],
+            "UpstreamPathTemplate": "/Order",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/Order/{Id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 83
+                }
+            ],
+            "UpstreamPathTemplate": "/Order/{Id}",
+            "UpstreamHttpMethod": [ "DELETE" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/Order/Search",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 83
+                }
+            ],
+            "UpstreamPathTemplate": "/Order/Search",
+            "UpstreamHttpMethod": [ "POST" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/User",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 81
+                }
+            ],
+            "UpstreamPathTemplate": "/User",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/User/{Id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 81
+                }
+            ],
+            "UpstreamPathTemplate": "/User/{Id}",
+            "UpstreamHttpMethod": [ "GET", "DELETE" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/User/Search",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 81
+                }
+            ],
+            "UpstreamPathTemplate": "/User/Search",
+            "UpstreamHttpMethod": [ "POST" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/User/Refresh",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 81
+                }
+            ],
+            "UpstreamPathTemplate": "/User/Refresh",
+            "UpstreamHttpMethod": [ "POST" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/User/SignIn",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 81
+                }
+            ],
+            "UpstreamPathTemplate": "/User/SignIn",
+            "UpstreamHttpMethod": [ "POST" ]
+        },
+        {
+            "DownstreamPathTemplate": "/api/Product",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 82
+                }
+            ],
+            "UpstreamPathTemplate": "/Product",
+            "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/Product/{Id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 82
+                }
+            ],
+            "UpstreamPathTemplate": "/Product/{Id}",
+            "UpstreamHttpMethod": [ "GET", "DELETE" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        },
+        {
+            "DownstreamPathTemplate": "/api/Product/Search",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "192.168.1.7",
+                    "Port": 82
+                }
+            ],
+            "UpstreamPathTemplate": "/Product/Search",
+            "UpstreamHttpMethod": [ "POST" ],
+            "AuthenticationOptions": {
+                "AuthenticationProviderKey": "Bearer",
+                "AllowedScopes": []
+            }
+        }
+    ]
+}

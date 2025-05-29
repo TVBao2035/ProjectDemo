@@ -12,8 +12,7 @@ function App() {
   const auth = useSelector((state) => state.auth);
   const location = useLocation();
   const dispatch = useDispatch();
-  
-  console.log(location.pathname);
+
   const whiteList = ["/signin"];
 
   const handleRefreshToken = async() => {

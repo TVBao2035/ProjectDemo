@@ -71,7 +71,20 @@ namespace GateWay
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
                 builder.Services.AddEndpointsApiExplorer();
                 builder.Services.AddSwaggerGen();
-                builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+                string fileName = string.Empty;
+                switch (builder.Configuration["env:ocelot"]) {
+                    case "developing":
+                        fileName = "ocelot.developing.json";
+                        break;
+                    case "deploying":
+                        fileName = "ocelot.deploying.json";
+                        break;
+                    default:
+                        fileName = "ocelot.developing.json";
+                        break;
+                }
+
+                builder.Configuration.AddJsonFile(fileName, optional: false, reloadOnChange: true);
                 builder.Services.AddOcelot(builder.Configuration);  
                 var app = builder.Build();
 

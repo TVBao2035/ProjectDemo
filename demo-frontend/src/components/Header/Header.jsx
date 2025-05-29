@@ -7,10 +7,6 @@ import { useEffect } from "react";
 const Header = () => {
     const auth = useSelector((state) => state.auth);
     
-    useEffect(() => {
-        console.log("auth change");
-        console.log(auth.data);
-    }, [auth])
     return ( 
         <div className="header bg-blue-600 text-white px-20 py-6 flex justify-between" >
             <div>
