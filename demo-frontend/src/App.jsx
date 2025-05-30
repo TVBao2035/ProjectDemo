@@ -12,7 +12,7 @@ function App() {
   const auth = useSelector((state) => state.auth);
   const location = useLocation();
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const whiteList = ["/signin"];
 
   const handleRefreshToken = async() => {
@@ -33,6 +33,10 @@ function App() {
     }
   }
   useEffect(() => {
+    if(CookiesHelper.getRefreshToken()==undefined && auth.data == null){
+      navigate("/signin");
+      return;
+    }
     if(auth.data === null && !whiteList.includes(location.pathname)) {
       handleRefreshToken();
     }

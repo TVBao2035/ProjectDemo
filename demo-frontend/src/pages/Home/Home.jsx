@@ -12,8 +12,7 @@ const Home = () => {
   const dispatch = useDispatch();
 
     return ( 
-        <div className="home">
-            <h1 onClick={() => dispatch(clearAuth())}>Home</h1>
+        <div className="home mt-36 pt-36">
             <div className="flex gap-4 justify-center">
               {
                 ROUTE_PAGES.map((page, index) => (
@@ -25,9 +24,6 @@ const Home = () => {
                 ))
               }
             </div>
-            <Link to={"/signin"} onClick={() => CookiesHelper.removeRefreshToken() } className="sign-in-link" > 
-                Sign In
-            </Link>
         </div>
       );
 }

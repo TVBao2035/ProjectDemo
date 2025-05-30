@@ -106,7 +106,7 @@ const OrderManagement = () => {
          if(auth.data){
              handleGetOrders();
          }  
-    }, [auth, search] );
+    }, [auth, search, orders.modal.count] );
 
     useEffect(()=>{
         if(auth.data){
@@ -208,7 +208,7 @@ const OrderManagement = () => {
                 </tbody>
             </table>
 
-            <div className="fixed bottom-40 w-full start-0 ">
+            <div className="fixed bottom-20 w-full start-0 ">
                 <div className="flex gap-3 items-center justify-center mt-5">
                     <HiArrowLeftCircle
                         className={`text-3xl ${search.pageIndex === 1 ? "text-gray-500" : "text-blue-500 active:text-blue-400 hover:ring-2 hover:rounded-full hover:ring-blue-500 "} `}

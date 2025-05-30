@@ -1,7 +1,8 @@
 import { IoMdClose } from "react-icons/io";
 import ContainerModal from "../../ContainerModal/ContainerModal";
 import { useDispatch, useSelector } from "react-redux";
-import { closeOrderModal } from "../../../../stores/orderSlice";
+import { closeOrderModal, closeOrderModalRefresh } from "../../../../stores/orderSlice";
+import { deleteOrder } from "../../../../apis/orderAPI";
 
 const ModalDeleteOrder = () => {
     const order = useSelector(state => state.orders.modal.order);
@@ -10,7 +11,15 @@ const ModalDeleteOrder = () => {
 
 
     const handleDelete = async () => {
-
+        try {
+            let res = await deleteOrder(order.id);
+            if(res.statusCode === 200){
+                dispatch(closeOrderModalRefresh());
+                return;
+            }
+        } catch (error) {
+            
+        }
     }
      const handleCloseModal = () => {
             dispatch(closeOrderModal());

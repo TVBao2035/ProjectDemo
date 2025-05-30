@@ -23,6 +23,16 @@ const ModalUpdateProduct = () => {
 
     const handleUpdate  = async () => {
             try {
+
+                if(infor.name.trim().length === 0) {
+                    setError("Please enter product name");
+                    return;
+                }
+
+                if(infor.price === 0){
+                      setError("Please enter product price");
+                    return;
+                }
                 let res = await updateProduct(infor);
                 if(res.statusCode === 200){
                     dispatch(closeProductModalRefresh());
