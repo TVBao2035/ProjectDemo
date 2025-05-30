@@ -8,7 +8,7 @@ using OrderService.Services.Interfaces;
 
 namespace OrderService.Services.Implements
 {
-    public class OrderServices : IOrderService
+    public class OrderServices : IOrderServices
     {
         private IOrderRepository _orderRepository;
         private IConfiguration _config;
@@ -27,32 +27,32 @@ namespace OrderService.Services.Implements
 
         
 
-        public async Task<AppReponse<OrderDTO>> Create(OrderDTO request)
+        public async Task<AppReponse<OrderResponse>> Create(OrderCreateRequest request)
         {
-            var result = new AppReponse<OrderDTO>();
+            var result = new AppReponse<OrderResponse>();
             try
             {
-                string httpUserString = $"{_config["Microservices:UserService"]}/{request.UserId}";
-                string httpProductString = $"{_config["Microservices:ProductService"]}/{request.ProductId}";
+                //string httpUserString = $"{_config["Microservices:UserService"]}/{request.UserId}";
+                //string httpProductString = $"{_config["Microservices:ProductService"]}/{request.ProductId}";
                
-                AppHttpClient<AppReponse<User>> userHttp = new AppHttpClient<AppReponse<User>>();
-                var user = await userHttp.GetDataFromHttp(httpUserString);
-                if (user.StatusCode != 200) 
-                    return result.SendReponse(user.StatusCode, user.Message);
+                //AppHttpClient<AppReponse<User>> userHttp = new AppHttpClient<AppReponse<User>>();
+                //var user = await userHttp.GetDataFromHttp(httpUserString);
+                //if (user.StatusCode != 200) 
+                //    return result.SendReponse(user.StatusCode, user.Message);
 
-                AppHttpClient<AppReponse<Product>> productHttp = new AppHttpClient<AppReponse<Product>>();
-                var product = await productHttp.GetDataFromHttp(httpProductString);
-                if (product.StatusCode != 200) 
-                    return result.SendReponse(product.StatusCode, product.Message);
+                //AppHttpClient<AppReponse<Product>> productHttp = new AppHttpClient<AppReponse<Product>>();
+                //var product = await productHttp.GetDataFromHttp(httpProductString);
+                //if (product.StatusCode != 200) 
+                //    return result.SendReponse(product.StatusCode, product.Message);
 
 
-                Order order = new Order();
-                order.Id = Guid.NewGuid();
-                order.UserId = request.UserId;
-                order.ProductId = request.ProductId;
-                _orderRepository.Add(order);
+                //Order order = new Order();
+                //order.Id = Guid.NewGuid();
+                //order.UserId = request.UserId;
+                //order.ProductId = request.ProductId;
+                //_orderRepository.Add(order);
 
-                return result.SendReponse(200, "Success", request);
+                return result.SendReponse(200, "Success");
             }
             catch (Exception ex)
             {
@@ -60,9 +60,9 @@ namespace OrderService.Services.Implements
             }
         }
 
-        public async Task<AppReponse<OrderDTO>> Delete(Guid Id)
+        public async Task<AppReponse<OrderResponse>> Delete(Guid Id)
         {
-            var result = new AppReponse<OrderDTO>();
+            var result = new AppReponse<OrderResponse>();
             try
             {
                    
@@ -80,40 +80,40 @@ namespace OrderService.Services.Implements
 
 
 
-        public async Task<AppReponse<List<OrderDTO>>> GetAll()
+        public async Task<AppReponse<List<OrderResponse>>> GetAll()
         {
-            var result = new AppReponse<List<OrderDTO>>();
+            var result = new AppReponse<List<OrderResponse>>();
             try
             {
-                string httpUserString;
-                string httpProductString;
-                var listOrder = await _orderRepository.Query()
-                    .Select(or => new OrderDTO
-                    {
-                        UserId = or.UserId,
-                        ProductId = or.ProductId,
-                    }).ToListAsync();
+                //string httpUserString;
+                //string httpProductString;
+                //var listOrder = await _orderRepository.Query()
+                //    .Select(or => new OrderResponse
+                //    {
+                //        UserId = or.UserId,
+                //        ProductId = or.ProductId,
+                //    }).ToListAsync();
 
-                AppHttpClient<AppReponse<User>> userHttp = new AppHttpClient<AppReponse<User>>();
-                AppHttpClient<AppReponse<Product>> productHttp = new AppHttpClient<AppReponse<Product>>();
+                //AppHttpClient<AppReponse<User>> userHttp = new AppHttpClient<AppReponse<User>>();
+                //AppHttpClient<AppReponse<Product>> productHttp = new AppHttpClient<AppReponse<Product>>();
 
-                foreach(var order in listOrder)
-                {
-                    httpUserString = $"{_config["Microservices:UserService"]}/{order.UserId}";
-                    httpProductString = $"{_config["Microservices:ProductService"]}/{order.ProductId}";
+                //foreach(var order in listOrder)
+                //{
+                //    httpUserString = $"{_config["Microservices:UserService"]}/{order.UserId}";
+                //    httpProductString = $"{_config["Microservices:ProductService"]}/{order.ProductId}";
 
-                    var user = await userHttp.GetDataFromHttp(httpUserString);
-                    if (user.StatusCode != 200)
-                        return result.SendReponse(user.StatusCode, user.Message);
+                //    var user = await userHttp.GetDataFromHttp(httpUserString);
+                //    if (user.StatusCode != 200)
+                //        return result.SendReponse(user.StatusCode, user.Message);
 
-                    var product = await productHttp.GetDataFromHttp(httpProductString);
-                    if (product.StatusCode != 200)
-                        return result.SendReponse(product.StatusCode, product.Message);
-                    order.User = user.Data;
-                    order.Product = product.Data;
-                }
+                //    var product = await productHttp.GetDataFromHttp(httpProductString);
+                //    if (product.StatusCode != 200)
+                //        return result.SendReponse(product.StatusCode, product.Message);
+                //    order.User = user.Data;
+                //    order.Product = product.Data;
+                //}
 
-                return result.SendReponse(200, "Success", listOrder);
+                return result.SendReponse(200, "Success");
             }
             catch (Exception ex)
             {
@@ -121,9 +121,9 @@ namespace OrderService.Services.Implements
             }
         }
 
-        public async Task<AppReponse<OrderDTO>> Update(Order request)
+        public async Task<AppReponse<OrderResponse>> Update(OrderUpdateRequest request)
         {
-            var result = new AppReponse<OrderDTO>();
+            var result = new AppReponse<OrderResponse>();
             try
             {
                 return result.SendReponse(200, "Success");

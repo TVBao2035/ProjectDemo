@@ -62,7 +62,7 @@ namespace OrderService
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Server"));
             });
-            builder.Services.AddScoped<IOrderService, OrderServices>();
+            builder.Services.AddScoped<IOrderServices, OrderServices>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddHttpContextAccessor();
             var app = builder.Build();

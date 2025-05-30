@@ -13,9 +13,9 @@ namespace OrderService.Controllers
     [Authorize]
     public class OrderController : ControllerBase
     {
-        private IOrderService _orderService;
+        private IOrderServices _orderService;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderServices orderService)
         {
             _orderService = orderService;
         }
@@ -28,7 +28,7 @@ namespace OrderService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] OrderDTO request)
+        public async Task<IActionResult> Create([FromBody] OrderCreateRequest request)
         {
             var data = await _orderService.Create(request);
             return Ok(data);
