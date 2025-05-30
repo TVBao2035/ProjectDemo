@@ -11,8 +11,8 @@ namespace OrderService.Models.Enities
         [Required]
         [ForeignKey("User")]
         public Guid UserId { get; set; }
-        [Required]
-        [ForeignKey("Product")]
-        public Guid ProductId { get; set; }
+        public User? User { get; set; }
+        public int TotalPrice { get; set; } = 0;
+        public string Date { get; set; } = DateTime.Today.ToString("dd/MM/yyyy");
     }
 }
