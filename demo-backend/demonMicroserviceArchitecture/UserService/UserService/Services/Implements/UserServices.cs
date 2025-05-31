@@ -29,43 +29,45 @@ namespace UserService.Services.Implements
         private IConfiguration _config;
 
         public UserServices(
-            IUserRepository userRepository, 
+            IUserRepository userRepository,
             IConfiguration config,
             ITokenRepository tokenRepository
-        ) {
+        )
+        {
             _userRepository = userRepository;
             _tokenRepository = tokenRepository;
             _config = config;
         }
-     
-        public async Task<AppReponse<SearchResponse<UserDTO>>> Search(SearchRequest request) 
+
+        public async Task<AppReponse<SearchResponse<UserDetailModal>>> Search(SearchRequest request)
         {
-           var result = new  AppReponse<SearchResponse<UserDTO>>();
+            var result = new AppReponse<SearchResponse<UserDetailModal>>();
             try
             {
-                SearchResponse<UserDTO> reponse = new SearchResponse<UserDTO>();
-                reponse.Results = new List<UserDTO>();
+                SearchResponse<UserDetailModal> reponse = new SearchResponse<UserDetailModal>();
+                reponse.SearchData = new List<UserDetailModal>();
                 var query = GetQuerySearch(request.Filters);
 
                 query = GetQuerySort(request.Sort, query);
-        
+
                 int pageSize = request.PageSize;
-                int currPage = request.CurrPage - 1;
+                int currPage = request.PageIndex - 1;
                 int skip = pageSize * currPage;
                 int totalPage = (query.Count() / request.PageSize);
                 if ((query.Count() % request.PageSize != 0)) totalPage++;
 
                 query = query.Skip(skip).Take(pageSize);
-                var users = query.Select(u => new UserDTO
+                var users = query.Select(u => new UserDetailModal
                 {
+                    Id = u.Id,
                     Name = u.Name,
                     Email = u.Email
                 }).ToList();
 
 
                 if (currPage > totalPage) currPage = totalPage;
-                reponse.Results = users;
-                reponse.CurrPage = currPage + 1;
+                reponse.SearchData = users;
+                reponse.PageIndex = currPage + 1;
                 reponse.TotalPages = totalPage;
 
 
@@ -84,10 +86,10 @@ namespace UserService.Services.Implements
                 var param = Expression.Parameter(typeof(User), "m");
                 var property = Expression.Property(param, order.FieldName);
                 var lambda = Expression.Lambda<Func<User, object>>(property, param);
-                if(lambda is not null)
+                if (lambda is not null)
                 {
-                    if (order.IsASC )
-                        query = query.OrderBy(lambda ).AsQueryable();
+                    if (order.IsASC)
+                        query = query.OrderBy(lambda).AsQueryable();
                     else
                         query = query.OrderByDescending(lambda).AsQueryable();
 
@@ -101,7 +103,7 @@ namespace UserService.Services.Implements
             IQueryable<User> query = _userRepository.GetQueryable();
             if (filters is not null && filters.Count > 0)
             {
-                foreach(var filter in filters)
+                foreach (var filter in filters)
                 {
                     var value = filter.Value.ToLower().Trim();
                     switch (filter.FieldName.ToLower().Trim())
@@ -129,16 +131,16 @@ namespace UserService.Services.Implements
                 var user = await _userRepository
                     .GetQueryable(u => u.Email == request.Email)
                     .FirstOrDefaultAsync();
-                if (user is null || !user.Password.Equals(request.Password)) 
+                if (user is null || !user.Password.Equals(request.Password))
                     return response.SendReponse(404, "Email or Pasword is wrong");
                 Token token = new Token();
                 token.AccessToken = CreateAccessToken(user);
                 (token.RefreshToke, token.Expire, token.Code) = CreateRefreshToken(user);
+                await _tokenRepository.InsertAsync(token);
                 LoginResponse loginResponse = new LoginResponse();
                 loginResponse.AccessToken = token.AccessToken;
                 loginResponse.RefreshToken = token.RefreshToke;
                 loginResponse.Name = user.Name;
-                _tokenRepository.Insert(token);
                 return response.SendReponse(200, "Success", loginResponse);
             }
             catch (Exception ex)
@@ -147,12 +149,15 @@ namespace UserService.Services.Implements
             }
         }
 
-        public async   Task<AppReponse<LoginResponse>> Refresh(string refreshToken)
+        public async Task<AppReponse<LoginResponse>> Refresh(string refreshToken)
         {
             var response = new AppReponse<LoginResponse>();
             try
             {
-                var claimPrincial = new JwtSecurityTokenHandler().ValidateToken(
+                ClaimsPrincipal claimsPrincipal;
+                try
+                {
+                    claimsPrincipal = new JwtSecurityTokenHandler().ValidateToken(
                      refreshToken,
                      new TokenValidationParameters
                      {
@@ -166,31 +171,37 @@ namespace UserService.Services.Implements
                          RequireExpirationTime = true,
                          ClockSkew = TimeSpan.Zero
                      },
-                     out _
+                     out var validatedToken
                      );
-                
-                var claims = claimPrincial.Claims.ToList();
+                }
+                catch (Exception ex)
+                {
+                    return response.SendReponse(401, "Refresh token was expired");
+                }
+
+
+                var claims = claimsPrincipal.Claims.ToList();
                 if (claims.Count == 0) return response.SendReponse(401, "Payload is not valid");
 
-                var codeClaim = claimPrincial.FindFirst(ClaimTypes.SerialNumber);
+                var codeClaim = claimsPrincipal.FindFirst(ClaimTypes.SerialNumber);
                 if (codeClaim is null)
                     return response.SendReponse(404, "Not found code in token");
                 var code = Guid.Parse(codeClaim.Value);
-                var emailUserClaim = claimPrincial.FindFirst("Email");
-                if (emailUserClaim is null) 
+                var emailUserClaim = claimsPrincipal.FindFirst("Email");
+                if (emailUserClaim is null)
                     return response.SendReponse(404, "Not Found Email In Token");
-                var getRefresh =  _tokenRepository
+                var getRefresh = _tokenRepository
                     .GetQueryable(t => t.Code == code)
                     .FirstOrDefault();
-                var user = _userRepository.GetQueryable(u => u.Email== emailUserClaim.Value).FirstOrDefault();
+                var user = _userRepository.GetQueryable(u => u.Email == emailUserClaim.Value).FirstOrDefault();
 
                 if (getRefresh is null)
                     return response.SendReponse(404, "Not found");
-                
-                if(getRefresh.Expire <= DateTime.UtcNow)
+
+                if (getRefresh.Expire <= DateTime.UtcNow)
                     return response.SendReponse(401, "Refresh Token Was Expired");
-                
-                if (user is null) 
+
+                if (user is null)
                     return response.SendReponse(404, "Not found user");
 
 
@@ -199,11 +210,11 @@ namespace UserService.Services.Implements
                 token.AccessToken = CreateAccessToken(user);
 
                 (token.RefreshToke, token.Expire, token.Code) = CreateRefreshToken(user);
+                await _tokenRepository.InsertAsync(token);
 
                 loginResponse.AccessToken = token.AccessToken;
                 loginResponse.RefreshToken = token.RefreshToke;
                 loginResponse.Name = user.Name;
-                _tokenRepository.Insert(token);
 
                 return response.SendReponse(200, "Success", loginResponse);
             }
@@ -218,8 +229,8 @@ namespace UserService.Services.Implements
             double expiredAccessToken = double.Parse(_config["Auth:ExpiredAccessToken"] ?? "60");
             DateTime expired = DateTime.UtcNow.AddSeconds(expiredAccessToken);
             var claims = GetClaims(user);
-            claims.Add(new Claim (JwtRegisteredClaimNames.Exp, expired.ToString()));
-            var token =  GenerateToken(claims, expired);
+            claims.Add(new Claim(JwtRegisteredClaimNames.Exp, expired.ToString()));
+            var token = GenerateToken(claims, expired);
             return token;
         }
         private (string, DateTime, Guid) CreateRefreshToken(User user)
@@ -260,25 +271,27 @@ namespace UserService.Services.Implements
         }
 
 
-        public async Task<AppReponse<UserDTO>> GetById(Guid Id)
+        public async Task<AppReponse<UserDetailModal>> GetById(Guid Id)
         {
             // dto
-            var result = new AppReponse<UserDTO>();
+            var result = new AppReponse<UserDetailModal>();
             try
             {
                 var user = await _userRepository.GetQueryable(u => u.Id == Id).FirstOrDefaultAsync();
-                if(user == null)
+                if (user == null)
                 {
                     //
                     return result.SendReponse(404, "Not found user");
                 }
-                var userDTO = new UserDTO
+                var userDTO = new UserDetailModal
                 {
+                    Id = user.Id,
                     Name = user.Name,
                     Email = user.Email
                 };
                 return result.SendReponse(200, "Success", userDTO);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return result.SendReponse(404, ex.Message);
             }
@@ -291,7 +304,7 @@ namespace UserService.Services.Implements
                 var user = _userRepository
                     .GetQueryable(u => u.Email.Equals(request.Email))
                     .FirstOrDefault();
-                if ( user is not null)
+                if (user is not null)
                 {
                     return result.SendReponse(404, "Email is exisiting");
                 }
@@ -300,7 +313,7 @@ namespace UserService.Services.Implements
                 user.Email = request.Email;
                 user.Password = "12345";
                 user.Name = request.Name;
-                 _userRepository.Insert(user);
+                await _userRepository.InsertAsync(user);
                 return result.SendReponse(200, "Success", request);
             }
             catch (Exception ex)
@@ -309,7 +322,7 @@ namespace UserService.Services.Implements
             }
         }
 
-        public async  Task<AppReponse<UserDTO>> Delete(Guid Id)
+        public async Task<AppReponse<UserDTO>> Delete(Guid Id)
         {
             var result = new AppReponse<UserDTO>();
             try
@@ -317,7 +330,7 @@ namespace UserService.Services.Implements
                 var user = await _userRepository
                     .GetQueryable(u => u.Id == Id)
                     .FirstOrDefaultAsync();
-                if (user is  null)
+                if (user is null)
                 {
                     return result.SendReponse(404, "Not Found User");
                 }
@@ -336,14 +349,15 @@ namespace UserService.Services.Implements
             }
         }
 
-        public async  Task<AppReponse<List<UserDTO>>> GetAll()
+        public async Task<AppReponse<List<UserDetailModal>>> GetAll()
         {
-            var result = new AppReponse<List<UserDTO>>();
+            var result = new AppReponse<List<UserDetailModal>>();
             try
             {
-                List<UserDTO> listUser = await _userRepository.GetQueryable()
-                    .Select(u => new UserDTO
+                List<UserDetailModal> listUser = await _userRepository.GetQueryable()
+                    .Select(u => new UserDetailModal
                     {
+                        Id = u.Id,
                         Name = u.Name,
                         Email = u.Email
                     })
@@ -356,20 +370,20 @@ namespace UserService.Services.Implements
             }
         }
 
-        public async Task<AppReponse<UserDTO>> Update(User request)
+        public async Task<AppReponse<UserDTO>> Update(UserDetailModal request)
         {
             var result = new AppReponse<UserDTO>();
             try
             {
                 var user = await _userRepository.GetQueryable(u => u.Id == request.Id).FirstOrDefaultAsync();
-                if (user is null) 
+                if (user is null)
                     return result.SendReponse(404, "Not found user");
 
                 var test = await _userRepository
                     .GetQueryable(u => u.Email == request.Email)
                     .FirstOrDefaultAsync();
 
-                if(test is not null && test.Id != user.Id)
+                if (test is not null && test.Id != user.Id)
                 {
                     return result.SendReponse(404, "Email is existing");
                 }

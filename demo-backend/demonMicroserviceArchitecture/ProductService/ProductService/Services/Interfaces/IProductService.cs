@@ -1,5 +1,7 @@
 ﻿using ProductService.Models.DTOs;
 using ProductService.Models.Enities;
+using UserService.Models.Requests;
+using UserService.Models.Responses;
 
 namespace ProductService.Services.Interfaces
 {
@@ -10,5 +12,6 @@ namespace ProductService.Services.Interfaces
         Task<AppReponse<ProductDTO>> Delete(Guid Id);
         Task<AppReponse<List<Product>>> GetAll();
         Task<AppReponse<Product>> GetById(Guid Id);
+        Task<AppReponse<SearchResponse<ProductDetailModal>>> Search(SearchRequest request);
     }
 }

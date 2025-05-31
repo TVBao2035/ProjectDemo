@@ -4,10 +4,11 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OrderService.Data;
-using OrderService.Repositories.Implements;
-using OrderService.Repositories.Interfaces;
-using OrderService.Services.Implements;
 using OrderService.Services.Interfaces;
+using OrderService.Repositories.Interfaces;
+using OrderService.Repositories.Implements;
+using OrderService.Services.Implements;
+
 
 namespace OrderService
 {
@@ -62,8 +63,9 @@ namespace OrderService
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Server"));
             });
-            builder.Services.AddScoped<IOrderServices, OrderServices>();
+            builder.Services.AddScoped<IOrderService, OrderServices>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             builder.Services.AddHttpContextAccessor();
             var app = builder.Build();
 

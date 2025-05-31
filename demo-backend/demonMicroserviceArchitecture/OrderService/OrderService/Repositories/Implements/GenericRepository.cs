@@ -19,12 +19,22 @@ namespace OrderService.Repositories.Implements
             _context.SaveChanges();
         }
 
+        public void Delete(IEnumerable<T> entities)
+        {
+            _context.Set<T>().RemoveRange(entities);
+            _context.SaveChanges();
+        }
+
         public void Add(T entity)
         {
             _context.Set<T>().Add(entity);
             _context.SaveChanges();
         }
-
+        public async Task AddAsync(T entity)
+        {
+            await _context.Set<T>().AddAsync(entity);
+            await _context.SaveChangesAsync();
+        }
         public IQueryable<T> Query(Expression<Func<T, bool>> expression)
         {
             return _context.Set<T>().Where(expression).AsQueryable();

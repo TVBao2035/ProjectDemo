@@ -14,7 +14,7 @@ namespace UserService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class UserController : ControllerBase
     {
         private IUserService _userService;
@@ -29,10 +29,9 @@ namespace UserService.Controllers
 
         [HttpPost]
         [Route("Refresh")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenModal refresh)
         {
-            var data = await _userService.Refresh(refreshToken);
+            var data = await _userService.Refresh(refresh.Token);
             return Ok(data);
         }
 
@@ -47,24 +46,28 @@ namespace UserService.Controllers
 
         [HttpPost]
         [Route("Search")]
+        [Authorize]
         public async Task<IActionResult> Search([FromBody] SearchRequest request)
         {
             var data = await _userService.Search(request);
             return Ok(data);
         }
         [HttpDelete("{Id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid Id)
         {
             var data = await _userService.Delete(Id);
             return Ok(data);
         }
         [HttpGet("{Id}")]
+        [Authorize]
         public async Task<IActionResult> GetById(Guid Id)
         {
             var data = await _userService.GetById(Id);
             return Ok(data);
         }
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             //const string cacheKey = "users:all";
@@ -82,6 +85,7 @@ namespace UserService.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] UserDTO request)
         {
             var data = await _userService.Create(request);
@@ -89,7 +93,8 @@ namespace UserService.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] User request)
+        [Authorize]
+        public async Task<IActionResult> Update([FromBody] UserDetailModal request)
         {
             var data = await _userService.Update(request);
             return Ok(data);

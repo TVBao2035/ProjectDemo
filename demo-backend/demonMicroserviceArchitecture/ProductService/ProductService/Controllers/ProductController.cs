@@ -5,6 +5,7 @@ using ProductService.Models.DTOs;
 using ProductService.Models.Enities;
 using ProductService.Services.Implements;
 using ProductService.Services.Interfaces;
+using UserService.Models.Requests;
 
 namespace ProductService.Controllers
 {
@@ -19,6 +20,15 @@ namespace ProductService.Controllers
             _productService = productService;
 
         }
+
+        [HttpPost]
+        [Route("Search")]
+        public async Task<IActionResult> Search([FromBody] SearchRequest searchRequest)
+        {
+            var data = await _productService.Search(searchRequest);
+            return Ok(data);
+        }
+
         [HttpDelete("{Id}")]
         public async Task<IActionResult> Delete(Guid Id)
         {

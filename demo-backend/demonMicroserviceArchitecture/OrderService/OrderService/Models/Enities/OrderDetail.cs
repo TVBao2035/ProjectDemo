@@ -11,7 +11,7 @@ namespace OrderService.Models.Enities
         [Required]
         [ForeignKey("Order")]
         public Guid OrderId { get; set; }
-        public User? Order { get; set; }
+        public Order? Order { get; set; }
         [Required]
         [ForeignKey("Product")]
         public Guid ProductId { get; set; }

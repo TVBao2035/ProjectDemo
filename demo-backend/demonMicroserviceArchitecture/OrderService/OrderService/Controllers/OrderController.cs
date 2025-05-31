@@ -5,6 +5,7 @@ using OrderService.Models.DTOs;
 using OrderService.Models.Enities;
 using OrderService.Services.Implements;
 using OrderService.Services.Interfaces;
+using UserService.Models.Requests;
 
 namespace OrderService.Controllers
 {
@@ -13,11 +14,18 @@ namespace OrderService.Controllers
     [Authorize]
     public class OrderController : ControllerBase
     {
-        private IOrderServices _orderService;
+        private IOrderService _orderService;
 
-        public OrderController(IOrderServices orderService)
+        public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
+        }
+        [HttpPost]
+        [Route("Search")]
+        public async Task<IActionResult> Search([FromBody] SearchRequest searchRequest)
+        {
+            var data = await _orderService.Search(searchRequest);
+            return Ok(data);
         }
 
         [HttpGet]
@@ -31,6 +39,20 @@ namespace OrderService.Controllers
         public async Task<IActionResult> Create([FromBody] OrderCreateRequest request)
         {
             var data = await _orderService.Create(request);
+            return Ok(data);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] OrderUpdateRequest order)
+        {
+            var data = await _orderService.Update(order);
+            return Ok(data);
+        }
+
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> Delete(Guid Id)
+        {
+            var data = await _orderService.Delete(Id);
             return Ok(data);
         }
     }

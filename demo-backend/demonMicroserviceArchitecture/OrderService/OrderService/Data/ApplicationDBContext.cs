@@ -10,5 +10,6 @@ namespace OrderService.Data
         }
 
         DbSet<Order> Order { get; set; }
+        DbSet<OrderDetail> OrderDetails { get; set; }
     }
 }

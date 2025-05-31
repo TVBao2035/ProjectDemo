@@ -2,9 +2,9 @@
 {
     public class SearchResponse<T>
     {
-        public int  TotalPages { get; set; }
-        public int CurrPage { get; set; }
+        public int TotalPages { get; set; }
+        public int PageIndex { get; set; }
 
-        public List<T> Results { get; set; }
+        public List<T>? SearchData { get; set; }
     }
 }

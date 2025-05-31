@@ -8,12 +8,12 @@ namespace UserService.Services.Interfaces
     public interface IUserService
     {
         Task<AppReponse<UserDTO>> Create(UserDTO request);
-        Task<AppReponse<UserDTO>> Update(User request);
+        Task<AppReponse<UserDTO>> Update(UserDetailModal request);
         Task<AppReponse<UserDTO>> Delete(Guid Id);
-        Task<AppReponse<List<UserDTO>>> GetAll();
-        Task<AppReponse<UserDTO>> GetById(Guid Id);
-        Task<AppReponse<SearchResponse<UserDTO>>> Search(SearchRequest request);
+        Task<AppReponse<UserDetailModal>> GetById(Guid Id);
         Task<AppReponse<LoginResponse>> Login(SignInRequest request);
         Task<AppReponse<LoginResponse>> Refresh(string refreshToken);
+        Task<AppReponse<SearchResponse<UserDetailModal>>> Search(SearchRequest request);
+        Task<AppReponse<List<UserDetailModal>>> GetAll();
     }
 }
